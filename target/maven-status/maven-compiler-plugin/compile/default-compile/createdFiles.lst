@@ -1,0 +1,8 @@
+com\pramati\core\util\FileUtilities.class
+com\pramati\core\downloader\EmailsDownloader.class
+com\pramati\App.class
+com\pramati\core\WebCrawler.class
+com\pramati\core\services\WebCrawlerServiceImpl.class
+com\pramati\core\util\StringUtilities.class
+com\pramati\core\util\PropsUtilities.class
+com\pramati\core\services\WebCrawlerService.class
