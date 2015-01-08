@@ -15,8 +15,8 @@ public class StringUtilities
 	 * @param input
 	 * @return a string which has all the characters matching regex with blank
 	 */
-	public static String replaceBlank(String regex, String input)
+	public static String removeSpecialChars(String regex, String input)
 	{
-		return input.replaceAll(regex, " ");
+		return input.replaceAll(regex, "");
 	}
 }
