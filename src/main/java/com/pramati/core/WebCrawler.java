@@ -25,36 +25,43 @@ public class WebCrawler
 	public static void main(String[] args) throws IOException
 	{
 		log.info("Crawling has started...");
-		try
+		long startTime = System.currentTimeMillis();
+		PropsUtilities props = new PropsUtilities();
+		int count = 0;
+		for(;;)
 		{
-			WebCrawlerService webCrawlerService = new ApacheMavenWebCrawlerServiceImpl();
-			PropsUtilities props = new PropsUtilities();
-			Document docHTML = webCrawlerService.loadHTMLDocument(props.fetchPropValue("URL"));
-			Element tableElement;
-			try 
+			try
 			{
-				tableElement = webCrawlerService.getTableFromHTMLDocument(docHTML, "grid", "2014");
-				webCrawlerService.processHTMLTableAndDownloadEmails(tableElement);
-				log.info("Crawling finished successfully...");
-			} 
-			catch (ValidationException e) 
-			{
-				log.error("Crawling finished with errors..."+e);
+				WebCrawlerService webCrawlerService = new ApacheMavenWebCrawlerServiceImpl();
+				Document docHTML = webCrawlerService.loadHTMLDocument(props.fetchPropValue("URL"));
+				if(count !=0)
+					log.info("Connected to internet now ...");
+				Element tableElement;
+				try 
+				{
+					tableElement = webCrawlerService.getTableFromHTMLDocument(docHTML, "grid", "2014");
+					webCrawlerService.processHTMLTableAndDownloadEmails(tableElement);
+					long endTime = System.currentTimeMillis();
+					log.info("Crawling finished successfully. Time taken: "+(startTime-endTime)/1000);
+					break;
+				} 
+				catch (ValidationException e) 
+				{
+					log.error("Crawling finished with errors..."+e);
+				}
 			}
-		}
-		catch(UnknownHostException e)
-		{
-			log.info("No Internet Connection !!");
-			log.error("Crawling finished with errors..."+e);
-		}
-		catch(SocketTimeoutException e)
-		{
-			log.info("No Internet Connection !!");
-			log.error("Crawling finished with errors..."+e);
-		}
-		catch(Exception e)
-		{
-			log.error("Crawling finished with errors..."+e);
+			catch(UnknownHostException e)
+			{
+				log.info("Internet Connection was lost while connecting to Apache Maven URL: "+props.fetchPropValue("URL")+", trying to reconnect !!");
+				count++;
+				continue;
+			}
+			catch(SocketTimeoutException e)
+			{
+				log.info("Internet Connection was lost while connecting to Apache Maven URL: "+props.fetchPropValue("URL")+", trying to reconnect !!");
+				count++;
+				continue;
+			}
 		}
 	}
 }
