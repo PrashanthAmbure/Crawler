@@ -4,14 +4,15 @@
 package com.pramati.core;
 
 import java.io.IOException;
-import java.net.SocketTimeoutException;
-import java.net.UnknownHostException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 
+import com.pramati.core.services.ApacheEmailsDownloader;
 import com.pramati.core.services.ApacheMavenWebCrawlerServiceImpl;
+import com.pramati.core.services.EmailsDownloader;
 import com.pramati.core.services.WebCrawlerService;
 import com.pramati.core.util.PropsUtilities;
 
@@ -22,46 +23,28 @@ import com.pramati.core.util.PropsUtilities;
 public class WebCrawler 
 {
 	private static final Logger log = Logger.getLogger(WebCrawler.class);
+	@SuppressWarnings("unchecked")
 	public static void main(String[] args) throws IOException
 	{
 		log.info("Crawling has started...");
 		long startTime = System.currentTimeMillis();
 		PropsUtilities props = new PropsUtilities();
-		int count = 0;
-		for(;;)
+		WebCrawlerService webCrawlerService = new ApacheMavenWebCrawlerServiceImpl();
+		Map<String, List<String>> urlsListPerMonth = Collections.EMPTY_MAP;
+		try 
 		{
-			try
-			{
-				WebCrawlerService webCrawlerService = new ApacheMavenWebCrawlerServiceImpl();
-				Document docHTML = webCrawlerService.loadHTMLDocument(props.fetchPropValue("URL"));
-				if(count !=0)
-					log.info("Connected to internet now ...");
-				Element tableElement;
-				try 
-				{
-					tableElement = webCrawlerService.getTableFromHTMLDocument(docHTML, "grid", "2014");
-					webCrawlerService.processHTMLTableAndDownloadEmails(tableElement);
-					long endTime = System.currentTimeMillis();
-					log.info("Crawling finished successfully. Time taken: "+(startTime-endTime)/1000);
-					break;
-				} 
-				catch (ValidationException e) 
-				{
-					log.error("Crawling finished with errors..."+e);
-				}
-			}
-			catch(UnknownHostException e)
-			{
-				log.info("Internet Connection was lost while connecting to Apache Maven URL: "+props.fetchPropValue("URL")+", trying to reconnect !!");
-				count++;
-				continue;
-			}
-			catch(SocketTimeoutException e)
-			{
-				log.info("Internet Connection was lost while connecting to Apache Maven URL: "+props.fetchPropValue("URL")+", trying to reconnect !!");
-				count++;
-				continue;
-			}
+			urlsListPerMonth = webCrawlerService.getURLSFromHTMLTable(props.fetchPropValue("URL"));
+		} 
+		catch (ValidationException e) 
+		{
+			log.error(e);
 		}
+		if(urlsListPerMonth.size() > 0)
+		{
+			EmailsDownloader emailsDownloader = new ApacheEmailsDownloader();
+			emailsDownloader.downloadEmails(urlsListPerMonth);
+		}
+		long endTime = System.currentTimeMillis();
+		log.info("Crawling finished successfully. Time taken: "+(startTime-endTime)/1000);
 	}
 }
