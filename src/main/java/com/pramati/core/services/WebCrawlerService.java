@@ -4,9 +4,8 @@
 package com.pramati.core.services;
 
 import java.io.IOException;
-
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
+import java.util.List;
+import java.util.Map;
 
 import com.pramati.core.ValidationException;
 
@@ -16,7 +15,5 @@ import com.pramati.core.ValidationException;
  */
 public interface WebCrawlerService 
 {
-	public Document loadHTMLDocument(String url) throws IOException;
-	public Element getTableFromHTMLDocument(Document docHTML, String tableID, String searchTHeadText)  throws ValidationException;
-	public void processHTMLTableAndDownloadEmails(Element tableElement) throws IOException;
+	public Map<String,List<String>> getURLSFromHTMLTable(String URL) throws IOException, ValidationException;
 }
