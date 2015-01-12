@@ -17,7 +17,6 @@ import org.jsoup.select.Elements;
 
 import com.pramati.core.ValidationException;
 import com.pramati.core.Visit;
-import com.pramati.core.downloader.EmailsDownloader;
 import com.pramati.core.util.PropsUtilities;
 
 
@@ -28,11 +27,9 @@ import com.pramati.core.util.PropsUtilities;
 public class ApacheMavenWebCrawlerServiceImpl extends Visit implements WebCrawlerService 
 {
 	private static final Logger log = Logger.getLogger(ApacheMavenWebCrawlerServiceImpl.class);
-	EmailsDownloader emailsDownloader;
 	PropsUtilities props;
 	public ApacheMavenWebCrawlerServiceImpl()
 	{
-		emailsDownloader = new EmailsDownloader();
 		props = new PropsUtilities();
 	}
 	
