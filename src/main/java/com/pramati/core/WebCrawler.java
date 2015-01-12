@@ -34,15 +34,15 @@ public class WebCrawler
 		try 
 		{
 			urlsListPerMonth = webCrawlerService.getURLSFromHTMLTable(props.fetchPropValue("URL"));
+			if(urlsListPerMonth.size() > 0)
+			{
+				EmailsDownloader emailsDownloader = new ApacheEmailsDownloader();
+				emailsDownloader.downloadEmails(urlsListPerMonth);
+			}
 		} 
 		catch (ValidationException e) 
 		{
 			log.error(e);
-		}
-		if(urlsListPerMonth.size() > 0)
-		{
-			EmailsDownloader emailsDownloader = new ApacheEmailsDownloader();
-			emailsDownloader.downloadEmails(urlsListPerMonth);
 		}
 		long endTime = System.currentTimeMillis();
 		log.info("Crawling finished successfully. Time taken: "+(startTime-endTime)/1000);

@@ -45,7 +45,7 @@ public class ApacheMavenWebCrawlerServiceImpl extends Visit implements WebCrawle
 	private Element getTableFromHTMLDocument(Document docHTML, String tableID, String tableClass, String searchTHeadText) throws ValidationException
 	{
 		Element yearsGrid = docHTML.getElementById(tableID);
-		for(Element tableYear: yearsGrid.select("table.year"))
+		for(Element tableYear: yearsGrid.select(tableClass))
 		{
 			Elements tableYearHead = tableYear.select("thead");
 			Elements th = tableYearHead.select("th");
