@@ -16,16 +16,15 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import com.pramati.core.util.PropsUtilities;
-import com.pramati.core.util.StringUtilities;
 
 /**
  * @author PAmbure
  *
  */
-public class ApacheEmailsDownloader implements EmailsDownloader 
+public class ApacheMavenEmailsDownloader implements EmailsDownloader 
 {
 	PropsUtilities props;
-	public ApacheEmailsDownloader()
+	public ApacheMavenEmailsDownloader()
 	{
 		props = new PropsUtilities();
 	}
@@ -62,14 +61,14 @@ public class ApacheEmailsDownloader implements EmailsDownloader
 			for(Element mailSubject:mailSubjectTD)
 			{
 				fileName = mailSubject.text();
-				fileName = StringUtilities.removeSpecialChars("[/\\*:?\"<>|]", fileName);
+				fileName = fileName.replaceAll("[/\\*:?\"<>|]", "");
 			}
 			
 			Elements mailDateTD = tr.select("td.date");
 			for(Element mailDate:mailDateTD)
 			{
 				fileName += "-"+mailDate.text();
-				fileName = StringUtilities.removeSpecialChars("[/\\*:?\"<>|]", fileName);
+				fileName = fileName.replaceAll("[/\\*:?\"<>|]", "");
 			}
 			Elements subjectLinks = tr.select("a[href]");
 			for(Element subLinks:subjectLinks)
