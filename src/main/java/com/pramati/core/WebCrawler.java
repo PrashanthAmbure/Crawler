@@ -10,7 +10,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import com.pramati.core.services.ApacheEmailsDownloader;
+import com.pramati.core.services.ApacheMavenEmailsDownloader;
 import com.pramati.core.services.ApacheMavenWebCrawlerServiceImpl;
 import com.pramati.core.services.EmailsDownloader;
 import com.pramati.core.services.WebCrawlerService;
@@ -24,7 +24,7 @@ public class WebCrawler
 {
 	private static final Logger log = Logger.getLogger(WebCrawler.class);
 	@SuppressWarnings("unchecked")
-	public static void main(String[] args) throws IOException
+	public static void main(String[] args)
 	{
 		log.info("Crawling has started...");
 		long startTime = System.currentTimeMillis();
@@ -36,11 +36,11 @@ public class WebCrawler
 			urlsListPerMonth = webCrawlerService.getURLSFromHTMLTable(props.fetchPropValue("URL"));
 			if(urlsListPerMonth.size() > 0)
 			{
-				EmailsDownloader emailsDownloader = new ApacheEmailsDownloader();
+				EmailsDownloader emailsDownloader = new ApacheMavenEmailsDownloader();
 				emailsDownloader.downloadEmails(urlsListPerMonth);
 			}
 		} 
-		catch (ValidationException e) 
+		catch (IOException | ValidationException e) 
 		{
 			log.error(e);
 		}
