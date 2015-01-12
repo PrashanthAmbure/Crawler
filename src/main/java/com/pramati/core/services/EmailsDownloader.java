@@ -13,5 +13,5 @@ import java.util.Map;
  */
 public interface EmailsDownloader 
 {
-	public Boolean downloadEmails(Map<String,List<String>> emailsListPerMonthFolder)  throws IOException;
+	public void downloadEmails(Map<String,List<String>> emailsListPerMonthFolder)  throws IOException;
 }

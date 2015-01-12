@@ -32,7 +32,7 @@ public class ApacheEmailsDownloader implements EmailsDownloader
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-	public Boolean downloadEmails(Map<String,List<String>> emailsListPerMonthFolder) throws IOException
+	public void downloadEmails(Map<String,List<String>> emailsListPerMonthFolder) throws IOException
 	{
 		Iterator mapIterator = emailsListPerMonthFolder.entrySet().iterator();
 		while(mapIterator.hasNext())
@@ -47,7 +47,6 @@ public class ApacheEmailsDownloader implements EmailsDownloader
 				processEmailURLAndDownloadToFolder(emailURL, folderName);
 			}
 		}
-		return null;
 	}
 	
 	private void processEmailURLAndDownloadToFolder(String emailURL, String downloadFolderName) throws IOException
