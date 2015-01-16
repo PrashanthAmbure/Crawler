@@ -19,8 +19,8 @@ import org.slf4j.Logger;
 /**
  * @author PAmbure
  * 
- *         This impl is responsible to download the url content to a file
- *         system.
+ *         This impl is responsible to download the url content to a given file
+ *         directory location.
  * 
  */
 public class ApacheMavenFSDownloader implements Downloader {
@@ -36,23 +36,18 @@ public class ApacheMavenFSDownloader implements Downloader {
 	public void download(List<String> urlsList) throws IOException {
 		LOG.info("Download is initiated. Dowloading emails to {}",
 				downloadsDirectory);
-		downloadToFileSystem(urlsList, downloadsDirectory);
-		LOG.info("Download completed");
-	}
-
-	private void downloadToFileSystem(List<String> urlsList,
-			String directoryPath) throws IOException {
 		int emailNumber = 1;
 		for (String url : urlsList) {
-			File directory = new File(directoryPath + url.substring(53, 59));
+			File directory = new File(downloadsDirectory
+					+ url.substring(53, 59));
 			if (!directory.exists())
 				directory.mkdir();
 
 			File file = new File(directory, "Email #" + (emailNumber++)
 					+ ".txt");
-			file.createNewFile();
 			saveToFile(url, file);
 		}
+		LOG.info("Download completed");
 	}
 
 	private void saveToFile(String url, File file) throws IOException {

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.pramati.core.util;
+package com.pramati.core.config;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -12,11 +12,13 @@ import java.util.Properties;
  * @author PAmbure
  * 
  */
-public class PropsUtilities {
+public class AppSettings {
 	private final Properties props;
-	public PropsUtilities(String propertyFile) throws FileNotFoundException, IOException {
+
+	public AppSettings(String propertyFile) throws FileNotFoundException,
+			IOException {
 		props = new Properties();
-		 InputStream inputStream = getClass().getClassLoader()
+		InputStream inputStream = getClass().getClassLoader()
 				.getResourceAsStream(propertyFile);
 		if (inputStream != null) {
 			props.load(inputStream);
@@ -26,7 +28,8 @@ public class PropsUtilities {
 		}
 	}
 
-	public String fetchPropValue(String propName) throws IOException {
+	public String getPropValue(String propName) throws IOException {
 		return props.getProperty(propName);
 	}
+
 }
