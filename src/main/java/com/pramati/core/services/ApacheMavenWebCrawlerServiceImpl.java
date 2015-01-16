@@ -55,23 +55,24 @@ public class ApacheMavenWebCrawlerServiceImpl implements WebCrawlerService {
 
 	private List<String> getApacheMailUrls(Elements anchorElementsList)
 			throws IOException {
-		final List<String> mavenMailUrls = new ArrayList<String>();
-		List<Element> mavenMailAbsUrls = new ArrayList<Element>();
+		final List<String> mavenMailAbsUrls = new ArrayList<String>();
+		List<Element> mavenMailRelativeUrls = new ArrayList<Element>();
 		for (Element anchorElement : anchorElementsList) {
 			String absUrl = anchorElement.attr("abs:href");
 			Elements anchorElements = getAnchorElements(absUrl,"a");
 			CollectionUtils.select(anchorElements,
 					getAnchorFilterPredicate(MAILS_URL_PATTERN),
-					mavenMailAbsUrls);
+					mavenMailRelativeUrls);
 		}
 
-		CollectionUtils.forAllDo(mavenMailAbsUrls, new Closure() {
+//		Convert all the Relative URL's to Absolute URL's.
+		CollectionUtils.forAllDo(mavenMailRelativeUrls, new Closure() {
 			@Override
 			public void execute(Object arg0) {
 				Element element = (Element) arg0;
-				mavenMailUrls.add(element.attr("abs:href"));
+				mavenMailAbsUrls.add(element.attr("abs:href"));
 			}
 		});
-		return mavenMailUrls;
+		return mavenMailAbsUrls;
 	}
 }
