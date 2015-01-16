@@ -3,48 +3,40 @@
  */
 package com.pramati.core;
 
-import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import com.pramati.core.services.ApacheMavenEmailsDownloader;
+import com.pramati.core.services.ApacheMavenFSDownloader;
 import com.pramati.core.services.ApacheMavenWebCrawlerServiceImpl;
-import com.pramati.core.services.EmailsDownloader;
+import com.pramati.core.services.Downloader;
 import com.pramati.core.services.WebCrawlerService;
 import com.pramati.core.util.PropsUtilities;
 
 /**
  * @author PAmbure
- * A simple crawler to crawl and download all mails for a given year from http://mail-archives.apache.org/mod_mbox/maven-users/.
+ * 
+ *         A simple crawler to crawl and download all mails for a given year
+ *         from http://mail-archives.apache.org/mod_mbox/maven-users/.
  */
-public class WebCrawler 
-{
-	private static final Logger log = Logger.getLogger(WebCrawler.class);
-	@SuppressWarnings("unchecked")
-	public static void main(String[] args)
-	{
-		log.info("Crawling has started...");
+public class WebCrawler {
+	private static final Logger LOG = Logger.getLogger(WebCrawler.class);
+
+	public static void main(String[] args) {
+		LOG.info("Crawling has started...");
 		long startTime = System.currentTimeMillis();
 		PropsUtilities props = new PropsUtilities();
 		WebCrawlerService webCrawlerService = new ApacheMavenWebCrawlerServiceImpl();
-		Map<String, List<String>> urlsListPerMonth = Collections.EMPTY_MAP;
-		try 
-		{
-			urlsListPerMonth = webCrawlerService.getURLSFromHTMLTable(props.fetchPropValue("URL"));
-			if(urlsListPerMonth.size() > 0)
-			{
-				EmailsDownloader emailsDownloader = new ApacheMavenEmailsDownloader();
-				emailsDownloader.downloadEmails(urlsListPerMonth);
-			}
-		} 
-		catch (IOException | ValidationException e) 
-		{
-			log.error(e);
+		Downloader downloader = new ApacheMavenFSDownloader();
+		try {
+			List<String> urlsList = webCrawlerService.getUrls(props
+					.fetchPropValue("URL"));
+			downloader.download(urlsList);
+			long endTime = System.currentTimeMillis();
+			LOG.info("Crawling finished successfully. Time taken: "
+					+ (startTime - endTime) / 1000);
+		} catch (Exception e) {
+			LOG.error(e);
 		}
-		long endTime = System.currentTimeMillis();
-		log.info("Crawling finished successfully. Time taken: "+(startTime-endTime)/1000);
 	}
 }

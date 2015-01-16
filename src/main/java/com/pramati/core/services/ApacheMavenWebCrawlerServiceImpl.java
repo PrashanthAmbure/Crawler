@@ -5,90 +5,73 @@ package com.pramati.core.services;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.collections.Closure;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Predicate;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import com.pramati.core.ValidationException;
-import com.pramati.core.Visit;
-import com.pramati.core.util.PropsUtilities;
-
-
 /**
  * @author PAmbure
- *
+ * 
  */
-public class ApacheMavenWebCrawlerServiceImpl extends Visit implements WebCrawlerService 
-{
-	private static final Logger log = Logger.getLogger(ApacheMavenWebCrawlerServiceImpl.class);
-	PropsUtilities props;
-	public ApacheMavenWebCrawlerServiceImpl()
-	{
-		props = new PropsUtilities();
+public class ApacheMavenWebCrawlerServiceImpl implements WebCrawlerService {
+
+	private final static String YEAR_PATTERN = "(http://)?[a-zA-Z-._/]+2014[0-9]{2}[.a-z/]+thread";
+	private final static String MAILS_URL_PATTERN = "(http://)?[a-zA-Z-._/]+2014[0-9]{2}[.a-z]+/%[a-zA-Z0-9-._@%\\s]+";
+
+	public List<String> getUrls(String seedUrl) throws IOException {
+		Elements anchorElements = getAnchorElements(seedUrl,"a");
+		CollectionUtils.filter(anchorElements,
+				getAnchorFilterPredicate(YEAR_PATTERN));
+		return getApacheMailUrls(anchorElements);
 	}
-	
-	@Override
-	public Map<String,List<String>> getURLSFromHTMLTable(String URL) throws IOException, ValidationException
-	{
-		Document docHTML = Jsoup.connect(URL).get();
-		log.info("Connected to "+URL);
-		Element tableElement = getTableFromHTMLDocument(docHTML, "grid", "table.year", "2014");
-		return fetchDownloadURLSList(tableElement);
+
+	private Elements getAnchorElements(String url, String cssSelector) throws IOException {
+		Document docHTML = Jsoup.connect(url).get();
+		return docHTML.select(cssSelector);
 	}
-		
-	private Element getTableFromHTMLDocument(Document docHTML, String tableID, String tableClass, String searchTHeadText) throws ValidationException
-	{
-		Element yearsGrid = docHTML.getElementById(tableID);
-		for(Element tableYear: yearsGrid.select(tableClass))
-		{
-			Elements tableYearHead = tableYear.select("thead");
-			Elements th = tableYearHead.select("th");
-			if(th.text().contains(searchTHeadText))
-			{
-				return tableYear;
+
+	private Predicate getAnchorFilterPredicate(final String hrefPattern) {
+		return new Predicate() {
+			@Override
+			public boolean evaluate(Object arg0) {
+				Pattern REGEX_PATTERN = Pattern.compile(hrefPattern);
+				Element anchorElement = (Element) arg0;
+				String absUrl = anchorElement.attr("abs:href");
+				Matcher matcher = REGEX_PATTERN.matcher(absUrl);
+				if (matcher.find())
+					return true;
+				return false;
 			}
-		}
-		throw new ValidationException("No table found in the given HTML document.");
+		};
 	}
-	
-	private Map<String,List<String>> fetchDownloadURLSList(Element tableElement) throws IOException
-	{
-		Map<String,List<String>> emailsListPerMonthFolder = new LinkedHashMap<String,List<String>>();
-		Elements tableYearBody = tableElement.select("tbody");
-		Elements tableYearEachMonthTRList = tableYearBody.select("tr");
-		for(Element tableYearTR:tableYearEachMonthTRList)
-		{
-			String downloadFolderName = getFolderNameToDownloadEmails(tableYearTR);
-			List<String> emailURLList = new ArrayList<String>();
-			emailsListPerMonthFolder.put(downloadFolderName, emailURLList);
-			Elements emailURLElements = tableYearTR.select("a[href]");
-			emailURLList = emailsListPerMonthFolder.get(downloadFolderName);
-			for(Element link:emailURLElements)
-			{
-				String hrefLink = link.attr("href");
-				if(hrefLink.contains("thread"))
-				{
-					emailURLList.add(props.fetchPropValue("URL")+hrefLink);
-				}
+
+	private List<String> getApacheMailUrls(Elements anchorElementsList)
+			throws IOException {
+		final List<String> mavenMailUrls = new ArrayList<String>();
+		List<Element> mavenMailAbsUrls = new ArrayList<Element>();
+		for (Element anchorElement : anchorElementsList) {
+			String absUrl = anchorElement.attr("abs:href");
+			Elements anchorElements = getAnchorElements(absUrl,"a");
+			CollectionUtils.select(anchorElements,
+					getAnchorFilterPredicate(MAILS_URL_PATTERN),
+					mavenMailAbsUrls);
+		}
+
+		CollectionUtils.forAllDo(mavenMailAbsUrls, new Closure() {
+			@Override
+			public void execute(Object arg0) {
+				Element element = (Element) arg0;
+				mavenMailUrls.add(element.attr("abs:href"));
 			}
-		}
-		return emailsListPerMonthFolder;
-	}
-	
-	private String getFolderNameToDownloadEmails(Element tableRow) throws IOException
-	{
-		String folderName = "";
-		Elements folderNameTD = tableRow.select("td.date");
-		for(Element folder:folderNameTD)
-		{
-			folderName = folder.text();
-		}
-		return folderName;
+		});
+		return mavenMailUrls;
 	}
 }
