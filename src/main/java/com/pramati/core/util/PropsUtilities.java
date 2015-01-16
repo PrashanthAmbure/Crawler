@@ -10,28 +10,23 @@ import java.util.Properties;
 
 /**
  * @author PAmbure
- *
+ * 
  */
-public class PropsUtilities 
-{
-	public String fetchPropValue(String propName) throws IOException
-	{
-		Properties props = new Properties();
-		String propFileName = "crawler.properties";
-		InputStream inputStream = getClass().getClassLoader().getResourceAsStream(propFileName);
-		 
-		if (inputStream != null) 
-		{
+public class PropsUtilities {
+	private final Properties props;
+	public PropsUtilities(String propertyFile) throws FileNotFoundException, IOException {
+		props = new Properties();
+		 InputStream inputStream = getClass().getClassLoader()
+				.getResourceAsStream(propertyFile);
+		if (inputStream != null) {
 			props.load(inputStream);
-		} 
-		else 
-		{
-			throw new FileNotFoundException("property file '" + propFileName + "' not found in the classpath");
+		} else {
+			throw new FileNotFoundException("property file '" + propertyFile
+					+ "' not found in the classpath");
 		}
- 
- 
-		// get the property value and print it out
-		String propValue = props.getProperty(propName);
-		return propValue;
+	}
+
+	public String fetchPropValue(String propName) throws IOException {
+		return props.getProperty(propName);
 	}
 }
