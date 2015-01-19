@@ -33,7 +33,7 @@ public class ApacheMavenWebCrawlerServiceImplTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		service = new ApacheMavenWebCrawlerServiceImpl();
+		service = new ApacheMavenWebCrawlerServiceImpl("2014");
 		URL url;
 		try {
 			url = new URL("http://www.google.com");

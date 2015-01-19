@@ -9,7 +9,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,8 +27,9 @@ public class ApacheMavenFSDownloaderTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		downloader = new ApacheMavenFSDownloader(System.getProperty("java.io.tmpdir")+"crawler-mails-test-folder/");
-		testDirectory = new File(System.getProperty("java.io.tmpdir")+"crawler-mails-test-folder/");
+		testDirectory = new File(System.getProperty("java.io.tmpdir")+"crawler-mails-test-folder"+System.currentTimeMillis()+"/");
+		downloader = new ApacheMavenFSDownloader(testDirectory.getAbsolutePath());
+		
 		if (!testDirectory.exists())
 			testDirectory.mkdir();
 	}
@@ -39,7 +39,7 @@ public class ApacheMavenFSDownloaderTest {
 	 */
 	@After
 	public void tearDown() throws Exception {
-		FileUtils.deleteDirectory(testDirectory);
+		testDirectory.deleteOnExit();
 	}
 
 	/**
