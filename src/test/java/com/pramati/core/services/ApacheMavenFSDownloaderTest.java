@@ -3,7 +3,7 @@
  */
 package com.pramati.core.services;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -28,9 +28,8 @@ public class ApacheMavenFSDownloaderTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		downloader = new ApacheMavenFSDownloader(
-				"src/test/resources/mails-test-folder/");
-		testDirectory = new File("src/test/resources/mails-test-folder/");
+		downloader = new ApacheMavenFSDownloader(System.getProperty("java.io.tmpdir")+"crawler-mails-test-folder/");
+		testDirectory = new File(System.getProperty("java.io.tmpdir")+"crawler-mails-test-folder/");
 		if (!testDirectory.exists())
 			testDirectory.mkdir();
 	}

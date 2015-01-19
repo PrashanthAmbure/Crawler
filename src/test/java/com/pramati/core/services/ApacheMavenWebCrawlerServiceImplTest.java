@@ -3,7 +3,8 @@
  */
 package com.pramati.core.services;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,15 +21,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.pramati.core.config.AppSettings;
-
 /**
  * @author PAmbure
  * 
  */
 public class ApacheMavenWebCrawlerServiceImplTest {
 	ApacheMavenWebCrawlerServiceImpl service;
-	AppSettings settings;
 
 	/**
 	 * @throws java.lang.Exception
@@ -36,7 +34,13 @@ public class ApacheMavenWebCrawlerServiceImplTest {
 	@Before
 	public void setUp() throws Exception {
 		service = new ApacheMavenWebCrawlerServiceImpl();
-		settings = new AppSettings("crawler.properties");
+		URL url;
+		try {
+			url = new URL("http://www.google.com");
+			url.openConnection();
+		} catch (IOException e) {
+			throw e;
+		}
 	}
 
 	/**
