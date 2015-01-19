@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
+import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -26,8 +27,13 @@ public class ApacheMavenWebCrawlerServiceImpl implements WebCrawlerService {
 
 	private final static Logger LOG = LoggerFactory
 			.getLogger(ApacheMavenWebCrawlerServiceImpl.class);
+	private String searchText = StringUtils.EMPTY;
+	
+	public ApacheMavenWebCrawlerServiceImpl(String searchText){
+		this.searchText = searchText;
+	}
 
-	public List<String> getUrls(String seedUrl, String searchText)
+	public List<String> getUrls(String seedUrl)
 			throws IOException {
 		return getUrls(Jsoup.connect(seedUrl).get(),searchText);
 	}

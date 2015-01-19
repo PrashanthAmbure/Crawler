@@ -11,5 +11,5 @@ import java.util.List;
  * 
  */
 public interface WebCrawlerService {
-	List<String> getUrls(String seedURL, String searchText) throws IOException;
+	List<String> getUrls(String seedURL) throws IOException;
 }

@@ -29,11 +29,12 @@ public class ApacheMavenCrawler {
 		long startTime = System.currentTimeMillis();
 		try {
 			AppSettings settings = new AppSettings("crawler.properties");
-			WebCrawlerService webCrawlerService = new ApacheMavenWebCrawlerServiceImpl();
+			WebCrawlerService webCrawlerService = new ApacheMavenWebCrawlerServiceImpl(
+					"2014");
 			Downloader downloader = new ApacheMavenFSDownloader(
 					settings.getPropValue("DOWNLOADS_DIRECTORY"));
-			List<String> urlsList = webCrawlerService.getUrls(
-					settings.getPropValue("URL"), "2014");
+			List<String> urlsList = webCrawlerService.getUrls(settings
+					.getPropValue("URL"));
 			LOG.info("Apache Maven Email URLS loaded. About to start downloading...");
 			downloader.download(urlsList);
 			long endTime = System.currentTimeMillis();
