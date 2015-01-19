@@ -5,60 +5,93 @@ package com.pramati.core.services;
 
 import static org.junit.Assert.*;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.pramati.core.ValidationException;
+import com.pramati.core.config.AppSettings;
 
 /**
  * @author PAmbure
- *
+ * 
  */
-public class ApacheMavenWebCrawlerServiceImplTest 
-{
-	String url;
+public class ApacheMavenWebCrawlerServiceImplTest {
+	ApacheMavenWebCrawlerServiceImpl service;
+	AppSettings settings;
 
 	/**
 	 * @throws java.lang.Exception
 	 */
 	@Before
-	public void setUp() throws Exception 
-	{
-		url = "http://mail-archives.apache.org/mod_mbox/maven-users/";
-	}
-
-
-	/**
-	 * Test method for {@link com.pramati.core.services.ApacheMavenWebCrawlerServiceImpl#getURLSFromHTMLTable(java.lang.String)}.
-	 */
-	@Test
-	public void testGetURLSFromHTMLTable() 
-	{
-		ApacheMavenWebCrawlerServiceImpl service = new ApacheMavenWebCrawlerServiceImpl();
-		try 
-		{
-			Map<String,List<String>> urlsListPerMonth = service.getURLSFromHTMLTable(url);
-			assertNotNull(urlsListPerMonth);
-			if(urlsListPerMonth.size() <= 0)
-				throw new ValidationException("No data found.");
-		} 
-		catch (IOException | ValidationException e) 
-		{
-			fail("Exception occurred."+e.getLocalizedMessage());
-		}
+	public void setUp() throws Exception {
+		service = new ApacheMavenWebCrawlerServiceImpl();
+		settings = new AppSettings("crawler.properties");
 	}
 
 	/**
 	 * @throws java.lang.Exception
 	 */
 	@After
-	public void tearDown() throws Exception 
-	{
-		url="";
+	public void tearDown() throws Exception {
+		service = null;
 	}
+
+	/**
+	 * Test method for
+	 * {@link com.pramati.core.services.ApacheMavenWebCrawlerServiceImpl#getUrls(java.lang.String, java.lang.String)}
+	 * .
+	 * 
+	 * @throws URISyntaxException
+	 * @throws IOException
+	 */
+	@Test
+	public void testGetUrls() throws IOException, URISyntaxException {
+		URL url = getClass().getResource("/apache-maven.html");
+		Document docHTML = Jsoup.parse(new File(url.toURI()), "UTF-8");
+		List<String> actualOutput = service.getUrls(docHTML, "2014");
+		List<String> expectedOutput = new ArrayList<String>();
+		expectedOutput
+				.add("http://mail-archives.apache.org/mod_mbox/maven-users/201412.mbox/%3c547C1A5F.7070709@uni-jena.de%3e");
+		assertEquals(expectedOutput.get(0), actualOutput.get(0));
+	}
+
+	/**
+	 * Test method for
+	 * {@link com.pramati.core.services.ApacheMavenWebCrawlerServiceImpl#getRegexYearPattern(java.lang.String)}
+	 * .
+	 */
+	@Test
+	public void testGetRegexYearPattern() {
+		String hrefPattern = service.getRegexYearPattern("2014");
+		Pattern REGEX_PATTERN = Pattern.compile(hrefPattern);
+		Matcher matcher = REGEX_PATTERN
+				.matcher("http://maven-users/201412.mbox/thread");
+		assertTrue(matcher.find());
+	}
+
+	/**
+	 * Test method for
+	 * {@link com.pramati.core.services.ApacheMavenWebCrawlerServiceImpl#getRegexMailUrlPattern(java.lang.String)}
+	 * .
+	 */
+	@Test
+	public void testGetRegexMailUrlPattern() {
+		String hrefPattern = service.getRegexMailUrlPattern("2014");
+		Pattern REGEX_PATTERN = Pattern.compile(hrefPattern);
+		Matcher matcher = REGEX_PATTERN
+				.matcher("http://maven-users/201412.mbox/%thread");
+		assertTrue(matcher.find());
+	}
+
 }
