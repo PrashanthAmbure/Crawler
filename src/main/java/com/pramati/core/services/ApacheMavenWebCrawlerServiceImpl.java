@@ -29,12 +29,15 @@ public class ApacheMavenWebCrawlerServiceImpl implements WebCrawlerService {
 
 	public List<String> getUrls(String seedUrl, String searchText)
 			throws IOException {
-		Elements anchorElements = getAnchorElements(seedUrl, "a");
-		LOG.info("Anchor elements loaded successfully from {}", seedUrl);
+		return getUrls(Jsoup.connect(seedUrl).get(),searchText);
+	}
+	
+	public List<String> getUrls(Document docHTML, String searchText) throws IOException{
+		Elements anchorElements = getAnchorElements(docHTML, "a");
 		CollectionUtils.filter(anchorElements,
 				getAnchorFilterPredicate(getRegexYearPattern(searchText)));
-		LOG.info("Anchor elements filtered to have {} list only from {}",
-				searchText, seedUrl);
+		LOG.info("Anchor elements filtered to have {} list only ",
+				searchText);
 		return getApacheMailUrls(anchorElements, searchText);
 	}
 
@@ -60,9 +63,8 @@ public class ApacheMavenWebCrawlerServiceImpl implements WebCrawlerService {
 				+ "[0-9]{2}[.a-z]+/%[a-zA-Z0-9-._@%\\s]+";
 	}
 
-	private Elements getAnchorElements(String url, String cssSelector)
+	private Elements getAnchorElements(Document docHTML, String cssSelector)
 			throws IOException {
-		Document docHTML = Jsoup.connect(url).get();
 		return docHTML.select(cssSelector);
 	}
 
@@ -87,7 +89,7 @@ public class ApacheMavenWebCrawlerServiceImpl implements WebCrawlerService {
 		List<Element> mavenMailRelativeUrls = new ArrayList<Element>();
 		for (Element anchorElement : anchorElementsList) {
 			String absUrl = anchorElement.attr("abs:href");
-			Elements anchorElements = getAnchorElements(absUrl, "a");
+			Elements anchorElements = getAnchorElements(Jsoup.connect(absUrl).get(), "a");
 			CollectionUtils
 					.select(anchorElements,
 							getAnchorFilterPredicate(getRegexMailUrlPattern(searchText)),

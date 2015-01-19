@@ -33,21 +33,29 @@ public class ApacheMavenFSDownloader implements Downloader {
 	}
 
 	@Override
-	public void download(List<String> urlsList) throws IOException {
+	public Boolean download(List<String> urlsList) {
 		LOG.info("Download is initiated. Dowloading emails to {}",
 				downloadsDirectory);
-		int emailNumber = 1;
-		for (String url : urlsList) {
-			File directory = new File(downloadsDirectory
-					+ url.substring(53, 59));
-			if (!directory.exists())
-				directory.mkdir();
+		try {
+			int emailNumber = 1;
+			for (String url : urlsList) {
+				File directory = new File(downloadsDirectory
+						+ url.substring(53, 59));
+				if (!directory.exists())
+					directory.mkdir();
 
-			File file = new File(directory, "Email #" + (emailNumber++)
-					+ ".txt");
-			saveToFile(url, file);
+				File file = new File(directory, "Email #" + (emailNumber++)
+						+ ".txt");
+				saveToFile(url, file);
+				LOG.info("Download completed");
+				return Boolean.TRUE;
+			}
+			return Boolean.FALSE;
+		} catch (Exception e) {
+			LOG.error("Exception occurred while processing download action: ",
+					e);
+			return Boolean.FALSE;
 		}
-		LOG.info("Download completed");
 	}
 
 	private void saveToFile(String url, File file) throws IOException {

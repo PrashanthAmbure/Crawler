@@ -15,5 +15,5 @@ import java.util.List;
  * 
  */
 public interface Downloader {
-	void download(List<String> urlsList) throws Exception;
+	Boolean download(List<String> urlsList) throws Exception;
 }
