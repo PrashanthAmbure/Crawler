@@ -28,7 +28,7 @@ public class ApacheMavenFSDownloaderTest {
 	@Before
 	public void setUp() throws Exception {
 		testDirectory = new File(System.getProperty("java.io.tmpdir")+"crawler-mails-test-folder"+System.currentTimeMillis()+"/");
-		downloader = new ApacheMavenFSDownloader(testDirectory.getAbsolutePath());
+		downloader = new ApacheMavenFSDownloader(testDirectory.getAbsolutePath()+"/");
 		
 		if (!testDirectory.exists())
 			testDirectory.mkdir();
